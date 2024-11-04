@@ -3,16 +3,16 @@ package aed;
 import java.util.ArrayList;
 
 public class BestEffort {
-    private Heap<Traslado> trasladosPorRedito;
-    private Heap<Traslado> trasladosPorAntiguedad;
+    private Heap<TrasladoHandles> trasladosPorRedito;
+    private Heap<TrasladoHandles> trasladosPorAntiguedad;
     private Ciudad[] ciudades;
     private Estadisticas estadisticas;
 
     public BestEffort(int cantCiudades, Traslado[] traslados){
         ciudades = new Ciudad[cantCiudades];
 
-        trasladosPorRedito = new Heap<Traslado>(traslados, new ComparadorPorRedito<Traslado>());
-        trasladosPorAntiguedad = new Heap<Traslado>(traslados, new ComparadorPorAntiguedad<Traslado>());
+        trasladosPorRedito = new Heap<TrasladoHandles>(traslados, new ComparadorPorRedito<TrasladoHandles>());
+        trasladosPorAntiguedad = new Heap<TrasladoHandles>(traslados, new ComparadorPorAntiguedad<TrasladoHandles>());
     }
 
     public void registrarTraslados(Traslado[] traslados){

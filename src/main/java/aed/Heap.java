@@ -3,11 +3,11 @@ package aed;
 import java.util.ArrayList;
 
 public class Heap<T> {
-    private ArrayList<Traslado> data;
-    private Comparador<Traslado> prioridad;
+    private ArrayList<TrasladoHandles> data;
+    private Comparador<TrasladoHandles> prioridad;
 
-    public Heap(Traslado[] traslados, Comparador<Traslado> c) {
-        data = new ArrayList<Traslado>();
+    public Heap(Traslado[] traslados, Comparador<TrasladoHandles> c) {
+        data = new ArrayList<TrasladoHandles>();
         for (int i = 0; i < traslados.length; i++) {
             data.add(traslados[i]);
         }

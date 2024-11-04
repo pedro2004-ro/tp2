@@ -1,8 +1,8 @@
 package aed;
 
-class ComparadorPorRedito<T> implements Comparador<Traslado> {
+class ComparadorPorRedito<T> implements Comparador<TrasladoHandles> {
     @Override
-    public int comparar(Traslado a, Traslado b) {
+    public int comparar(TrasladoHandles a, TrasladoHandles b) {
         if (a.gananciaNeta > b.gananciaNeta)
             return 1;
         else if (a.gananciaNeta == b.gananciaNeta) {
@@ -16,9 +16,9 @@ class ComparadorPorRedito<T> implements Comparador<Traslado> {
     }
 }
 
-class ComparadorPorAntiguedad<T> implements Comparador<Traslado> {
+class ComparadorPorAntiguedad<T> implements Comparador<TrasladoHandles> {
     @Override
-    public int comparar(Traslado a, Traslado b) {
+    public int comparar(TrasladoHandles a, TrasladoHandles b) {
         if (a.timestamp < b.timestamp) {
             return 1;
         }
