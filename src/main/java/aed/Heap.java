@@ -62,12 +62,12 @@ public class Heap<T> {
         return 2*i + 1;
     }
 
-    private boolean hijosMenores(ArrayList<Traslado> data, int i) {
+    private boolean hijosMenores(ArrayList<TrasladoHandles> data, int i) {
         return (hijoDer(i) >= data.size() || prioridad.comparar(data.get(i), data.get(hijoDer(i))) >= 0) && 
         (hijoIzq(i) >= data.size() || prioridad.comparar(data.get(i), data.get(hijoIzq(i))) >= 0);
     }
 
-    private Traslado max(Traslado t, Traslado s) {
+    private TrasladoHandles max(TrasladoHandles t, TrasladoHandles s) {
         if (prioridad.comparar(t, s) > 0)
             return t;
         else
