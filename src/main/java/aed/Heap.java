@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Heap<T> {
     private ArrayList<TrasladoHandles> data;
     private Comparador<TrasladoHandles> prioridad;
+    private int tamaño;
 
     public Heap(Traslado[] traslados, Comparador<TrasladoHandles> c) {
         data = new ArrayList<TrasladoHandles>();
@@ -13,6 +14,7 @@ public class Heap<T> {
         }
 
         prioridad = c;
+        tamaño = traslados.length;
     }
 
     public int registrar(Traslado traslado) {
@@ -25,6 +27,8 @@ public class Heap<T> {
             data.set(i, p);
             i = padre(i);
         }
+
+        tamaño++;
 
         return i;
     }
@@ -54,6 +58,8 @@ public class Heap<T> {
 
             data.set(i, t);
         }
+
+        tamaño--;
 
         return despachado.id;
     }
