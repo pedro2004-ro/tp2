@@ -81,12 +81,12 @@ public class Heap<T> {
 
                 if (prioridad.comparar(data.get(hijoIzq(i)), data.get(hijoDer(i))) > 0) {
                     ordenes[swap.handle] = hijoIzq(i);
-                    swap.handle = hijoIzq(i);
+                    swap.handle = hijoIzq(i); //MAL!
                     data.set(hijoIzq(i), swap);
                 }
                 else {
                     ordenes[swap.handle] = hijoDer(i);
-                    swap.handle = hijoDer(i);
+                    swap.handle = hijoDer(i); //MAL!
                     data.set(hijoDer(i), swap);
                 }
             }
