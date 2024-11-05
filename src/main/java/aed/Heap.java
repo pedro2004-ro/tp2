@@ -36,14 +36,15 @@ public class Heap<T> {
     public int despacharUno() {
         Traslado despachado = data.set(0, data.get(data.size()-1));
 
-        data.remove(data.size()-1);
+        data.set(data.size() - 1, null);
+        tamaño--;
 
         int i = 0;
 
-        while (!hijosMenores(data, i)) {
+        while (!hijosMenores(i)) {
             Traslado t;
 
-            if (hijoDer(i) >= data.size()) {
+            if (hijoDer(i) >= tamaño) {
                 t = data.set(i, data.get(hijoIzq(i)));
                 i = hijoIzq(i);
             }
@@ -59,8 +60,6 @@ public class Heap<T> {
             data.set(i, t);
         }
 
-        tamaño--;
-
         return despachado.id;
     }
 
@@ -68,9 +67,9 @@ public class Heap<T> {
         return 2*i + 1;
     }
 
-    private boolean hijosMenores(ArrayList<TrasladoHandles> data, int i) {
-        return (hijoDer(i) >= data.size() || prioridad.comparar(data.get(i), data.get(hijoDer(i))) >= 0) && 
-        (hijoIzq(i) >= data.size() || prioridad.comparar(data.get(i), data.get(hijoIzq(i))) >= 0);
+    private boolean hijosMenores(int i) {
+        return (hijoDer(i) >= tamaño || prioridad.comparar(data.get(i), data.get(hijoDer(i))) >= 0) && 
+        (hijoIzq(i) >= tamaño || prioridad.comparar(data.get(i), data.get(hijoIzq(i))) >= 0);
     }
 
     private TrasladoHandles max(TrasladoHandles t, TrasladoHandles s) {
