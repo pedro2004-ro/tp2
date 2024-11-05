@@ -3,27 +3,34 @@ package aed;
 import java.util.ArrayList;
 
 public class Heap<T> {
-    private ArrayList<TrasladoHandles> data;
+    public ArrayList<TrasladoHandles> data;
     private Comparador<TrasladoHandles> prioridad;
-    private int tamaño;
+    public int tamaño;
 
-    public Heap(Traslado[] traslados, Comparador<TrasladoHandles> c) {
+    public Heap(Traslado[] traslados, Comparador<TrasladoHandles> c, int[] ordenes) {
         data = new ArrayList<TrasladoHandles>();
+
         for (int i = 0; i < traslados.length; i++) {
-            data.add(traslados[i]);
+            data.add(new TrasladoHandles(traslados[i], i));
+            ordenes[i] = i;
         }
+        
+        tamaño = traslados.length;
+        int i = padre(tamaño - 1);
 
         prioridad = c;
-        tamaño = traslados.length;
+
+        array2Heap(i, ordenes);
+
     }
 
-    public int registrar(Traslado traslado) {
+    public int registrar(TrasladoHandles nuevo) {
         int i = data.size();
         
-        data.add(traslado);
+        data.add(nuevo);
 
         while (i > 0 && prioridad.comparar(data.get(padre(i)), data.get(i)) < 0) {
-            Traslado p = data.set(padre(i), traslado);
+            TrasladoHandles p = data.set(padre(i), nuevo);
             data.set(i, p);
             i = padre(i);
         }
@@ -33,16 +40,16 @@ public class Heap<T> {
         return i;
     }
 
-    public int despacharUno() {
-        Traslado despachado = data.set(0, data.get(data.size()-1));
+    public DataDespachado eliminar(int indice) {
+        TrasladoHandles despachado = data.set(indice, data.get(tamaño - 1));
 
-        data.set(data.size() - 1, null);
+        data.set(tamaño - 1, null);
         tamaño--;
 
-        int i = 0;
+        int i = indice;            
 
-        while (!hijosMenores(i)) {
-            Traslado t;
+        while (i < tamaño && !hijosMenores(i)) {
+            TrasladoHandles t;
 
             if (hijoDer(i) >= tamaño) {
                 t = data.set(i, data.get(hijoIzq(i)));
@@ -56,11 +63,36 @@ public class Heap<T> {
                 else
                     i = hijoIzq(i);
             }
-
             data.set(i, t);
         }
 
-        return despachado.id;
+        DataDespachado dataDespachado = new DataDespachado(despachado.traslado.id, despachado.handle, i);
+
+        return dataDespachado;
+    }
+
+    private void array2Heap(int i, int[] ordenes) {
+
+        while (i >= 0) {
+            if (!hijosMenores(i)) {
+                TrasladoHandles hijoMaximo = max(data.get(hijoIzq(i)), data.get(hijoDer(i)));
+                ordenes[hijoMaximo.handle] = i;
+                TrasladoHandles swap = data.set(i, hijoMaximo);
+
+                if (prioridad.comparar(data.get(hijoIzq(i)), data.get(hijoDer(i))) > 0) {
+                    ordenes[swap.handle] = hijoIzq(i);
+                    swap.handle = hijoIzq(i);
+                    data.set(hijoIzq(i), swap);
+                }
+                else {
+                    ordenes[swap.handle] = hijoDer(i);
+                    swap.handle = hijoDer(i);
+                    data.set(hijoDer(i), swap);
+                }
+            }
+
+            i--;
+        }
     }
 
     private int hijoIzq(int i) {
