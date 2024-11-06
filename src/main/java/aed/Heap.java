@@ -48,25 +48,11 @@ public class Heap<T> {
 
         int i = indice;            
 
-        while (i < tamaño && !hijosMenores(i)) {
-            TrasladoHandles t;
+        //arreglar sift up? (que se encargue de los handles)
 
-            if (hijoDer(i) >= tamaño) {
-                t = data.set(i, data.get(hijoIzq(i)));
-                i = hijoIzq(i);
-            }
-            else {
-                t = data.set(i, max(data.get(hijoIzq(i)), data.get(hijoDer(i))));
+        i = siftDown(i, null);
 
-                if (prioridad.comparar(data.get(hijoIzq(i)), data.get(hijoDer(i))) < 0)
-                    i = hijoDer(i);
-                else
-                    i = hijoIzq(i);
-            }
-            data.set(i, t);
-        }
-
-        DataDespachado dataDespachado = new DataDespachado(despachado.traslado.id, despachado.handle, i);
+        DataDespachado dataDespachado = new DataDespachado(despachado, i);
 
         return dataDespachado;
     }
@@ -74,25 +60,44 @@ public class Heap<T> {
     private void array2Heap(int i, int[] ordenes) {
 
         while (i >= 0) {
-            if (!hijosMenores(i)) {
-                TrasladoHandles hijoMaximo = max(data.get(hijoIzq(i)), data.get(hijoDer(i)));
-                ordenes[hijoMaximo.handle] = i;
-                TrasladoHandles swap = data.set(i, hijoMaximo);
-
-                if (prioridad.comparar(data.get(hijoIzq(i)), data.get(hijoDer(i))) > 0) {
-                    ordenes[swap.handle] = hijoIzq(i);
-                    swap.handle = hijoIzq(i); //MAL!
-                    data.set(hijoIzq(i), swap);
-                }
-                else {
-                    ordenes[swap.handle] = hijoDer(i);
-                    swap.handle = hijoDer(i); //MAL!
-                    data.set(hijoDer(i), swap);
-                }
-            }
+            // hacer sift down con while
+            siftDown(i, ordenes);
 
             i--;
         }
+    }
+
+    private int siftDown(int i, int[] ordenes) {
+        while (i < tamaño && !hijosMenores(i)) {
+            TrasladoHandles swap;
+            if (hijoDer(i) >= tamaño) {
+                swap = data.set(i, data.get(hijoIzq(i)));
+                if (ordenes != null)
+                    ordenes[swap.handle] = hijoIzq(i);
+                i = hijoIzq(i);
+            }
+            else {
+                TrasladoHandles hijoMaximo = max(data.get(hijoIzq(i)), data.get(hijoDer(i)));
+                if (ordenes != null)
+                    ordenes[hijoMaximo.handle] = i;
+                swap = data.set(i, hijoMaximo);
+
+                if (prioridad.comparar(data.get(hijoIzq(i)), data.get(hijoDer(i))) > 0) {
+                    if (ordenes != null)
+                        ordenes[swap.handle] = hijoIzq(i);
+                    i = hijoIzq(i);
+                }
+                else {
+                    if (ordenes != null)
+                        ordenes[swap.handle] = hijoDer(i);
+                    i = hijoDer(i);
+                }
+
+                data.set(i, swap);
+            }
+        }
+
+        return i;
     }
 
     private int hijoIzq(int i) {
