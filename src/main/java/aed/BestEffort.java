@@ -39,7 +39,7 @@ public class BestEffort {
 
             //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
 
-            actualizarHandles(traslados, trasladosPorRedito.tamaño() - 1, posRedituable, trasladosPorRedito, trasladosPorAntiguedad);
+            actualizarHandles(traslados, trasladosPorRedito.tamaño() - 1, posRedituable, trasladosPorRedito, trasladosPorAntiguedad);   //O(log(T))
 
             TrasladoHandles nuevoAntiguedad = new TrasladoHandles(traslados[i], posRedituable);
             int posAntiguedad = trasladosPorAntiguedad.registrar(nuevoAntiguedad);      //O(log(T))
@@ -48,7 +48,7 @@ public class BestEffort {
 
             trasladosPorRedito.data.get(posRedituable).setHandle(posAntiguedad);
 
-            actualizarHandles(traslados, trasladosPorAntiguedad.tamaño() - 1, posAntiguedad, trasladosPorAntiguedad, trasladosPorRedito);
+            actualizarHandles(traslados, trasladosPorAntiguedad.tamaño() - 1, posAntiguedad, trasladosPorAntiguedad, trasladosPorRedito);   //O(log(T))
 
             trasladosPorAntiguedad.data.get(posAntiguedad).setHandle(posRedituable);      //O(1) 
         }
@@ -67,31 +67,19 @@ public class BestEffort {
 
             //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
 
-            int j = dataDespachadoRedito.posHoja();
-
-            while (j > 0) {                                                                 //log(T) iteraciones porque recorre la altura
-                if (trasladosPorRedito.data.get(j) != null)
-                    trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle()).setHandle(j);
-                j = (j - 1)/2;
-            }
+            actualizarHandles(traslados, dataDespachadoRedito.posHoja(), 0, trasladosPorRedito, trasladosPorAntiguedad);    //O(log(T))
 
             if (trasladosPorRedito.tamaño() > 0)
-                trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle()).setHandle(j);
+                trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(0).handle()).setHandle(0);
             
             DataDespachado dataDespachadoAntiguedad = trasladosPorAntiguedad.eliminar(dataDespachadoRedito.traslado().handle()); //O(log(T))
 
             //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
 
-            j = dataDespachadoAntiguedad.posHoja();
-
-            while (j > 0) {                                                                 //log(T) iteraciones porque recorre la altura
-                if (trasladosPorAntiguedad.data.get(j) != null)
-                    trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle()).setHandle(j);
-                j = (j - 1)/2;
-            }
+            actualizarHandles(traslados, dataDespachadoAntiguedad.posHoja(), 0, trasladosPorAntiguedad, trasladosPorRedito);    //O(log(T))
 
             if (trasladosPorAntiguedad.tamaño() > 0)
-                trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle()).setHandle(j);
+                trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(0).handle()).setHandle(0);
         }
 
         actualizarEstadisticas(traslados);                                                  //O(n)
@@ -117,32 +105,19 @@ public class BestEffort {
 
             //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
 
-            int j = dataDespachadoAntiguedad.posHoja();
-
-            while (j > 0) {
-                if (trasladosPorAntiguedad.data.get(j) != null)
-                    trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle()).setHandle(j);
-                j = (j - 1)/2;
-            }
+            actualizarHandles(traslados, dataDespachadoAntiguedad.posHoja(), 0, trasladosPorAntiguedad, trasladosPorRedito);    //O(log(T))
 
             if (trasladosPorAntiguedad.tamaño() > 0)
-                trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle()).setHandle(j);
+                trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(0).handle()).setHandle(0);
 
             DataDespachado dataDespachadoRedito = trasladosPorRedito.eliminar(dataDespachadoAntiguedad.traslado().handle());
 
             //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
 
-            j = dataDespachadoRedito.posHoja();
-
-            while (j > 0) {
-                if (trasladosPorRedito.data.get(j) != null) {
-                    trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle()).setHandle(j);
-                }
-                j = (j - 1)/2;
-            }
+            actualizarHandles(traslados, dataDespachadoRedito.posHoja(), 0, trasladosPorRedito, trasladosPorAntiguedad);    //O(log(T))
 
             if (trasladosPorRedito.tamaño() > 0)
-                trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle()).setHandle(j);
+                trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(0).handle()).setHandle(0);
         }
         actualizarEstadisticas(traslados);
 
@@ -171,9 +146,10 @@ public class BestEffort {
         return estadisticas.gananciaPromedioPorTraslado();
     }
 
-    private void actualizarHandles(Traslado[] traslados, int desde, int hasta, Heap<TrasladoHandles> heapEditado, Heap<TrasladoHandles> heapHandles) {
+    private void actualizarHandles(Traslado[] traslados, int desde, int hasta, Heap<TrasladoHandles> heapEditado, Heap<TrasladoHandles> heapHandles) {  //O(log(T))
         while (desde > hasta) {                                                 //log(T) iteraciones porque recorre la altura
-            heapHandles.data.get(heapEditado.data.get(desde).handle()).setHandle(desde);
+            if (heapEditado.data.get(desde) != null)
+                heapHandles.data.get(heapEditado.data.get(desde).handle()).setHandle(desde);
             desde = (desde - 1)/2;
         }
     }
