@@ -1,11 +1,23 @@
 package aed;
 
 public class TrasladoHandles {
-    public Traslado traslado;
-    public int handle;
+    private Traslado traslado;
+    private int handle;
 
     public TrasladoHandles(Traslado t, int h) {
         traslado = t;
+        handle = h;
+    }
+
+    public Traslado traslado() {
+        return traslado;
+    }
+
+    public int handle() {
+        return handle;
+    }
+
+    public void setHandle(int h) {
         handle = h;
     }
 }

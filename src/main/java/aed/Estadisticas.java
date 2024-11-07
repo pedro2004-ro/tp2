@@ -12,7 +12,7 @@ public class Estadisticas {
     private int traslados;
     private int gananciaTotal;
 
-    public Estadisticas(int t) {
+    public Estadisticas() {
         ciudadesPorMayorGanancia = new ArrayList<Integer>();
         ciudadesPorMayorGanancia.add(0);
         mayorGanancia = 0;
@@ -24,16 +24,17 @@ public class Estadisticas {
         ciudadMayorSuperavit = 0;
         mayorSuperavit = 0;
 
-        traslados = t;
+        traslados = 0;
         gananciaTotal = 0;
     }
 
     public void chequearMaximoGanancia(int indice, int ganancia) {
         if (ganancia > mayorGanancia) 
             ciudadesPorMayorGanancia.clear();
-        if (ganancia >= mayorGanancia)
+        if (ganancia >= mayorGanancia) {
             ciudadesPorMayorGanancia.add(indice);
             mayorGanancia = ganancia;
+        }
     }
 
     public void chequearMaximoPerdida(int indice, int perdida) {
@@ -85,5 +86,9 @@ public class Estadisticas {
 
     public int gananciaPromedioPorTraslado() {
         return gananciaTotal / traslados;
+    }
+
+    public void aumentarTraslados() {
+        traslados++;
     }
 }

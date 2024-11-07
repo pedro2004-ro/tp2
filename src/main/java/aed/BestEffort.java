@@ -9,123 +9,140 @@ public class BestEffort {
     private Estadisticas estadisticas;
 
     public BestEffort(int cantCiudades, Traslado[] traslados){
-        ciudades = new Ciudad[cantCiudades];
+        ciudades = new Ciudad[cantCiudades];                    //O(1)
 
-        for (int i = 0; i < cantCiudades; i++) {
+        for (int i = 0; i < cantCiudades; i++) {                //O(C)
             ciudades[i] = new Ciudad();
         }
 
-        estadisticas = new Estadisticas(traslados.length);
+        estadisticas = new Estadisticas();                      //O(1)
 
-        int[] ordenesPorRedito = new int[traslados.length];
-        int[] ordenesPorAntiguedad = new int[traslados.length];
+        int[] ordenesPorRedito = new int[traslados.length];     //O(1)
+        int[] ordenesPorAntiguedad = new int[traslados.length]; //O(1)
 
         trasladosPorRedito = new Heap<TrasladoHandles>(traslados, new ComparadorPorRedito<TrasladoHandles>(), ordenesPorRedito);
         trasladosPorAntiguedad = new Heap<TrasladoHandles>(traslados, new ComparadorPorAntiguedad<TrasladoHandles>(), ordenesPorAntiguedad);
 
-        for (int i = 0; i < ordenesPorRedito.length; i++) {
-            trasladosPorRedito.data.get(ordenesPorRedito[i]).handle = ordenesPorAntiguedad[i];
+        for (int i = 0; i < ordenesPorRedito.length; i++) {                                     //O(T)
+            trasladosPorRedito.data.get(ordenesPorRedito[i]).setHandle(ordenesPorAntiguedad[i]);
         }
 
-        for (int i = 0; i < ordenesPorAntiguedad.length; i++) {
-            trasladosPorAntiguedad.data.get(ordenesPorAntiguedad[i]).handle = ordenesPorRedito[i];
+        for (int i = 0; i < ordenesPorAntiguedad.length; i++) {                                 //O(T)
+            trasladosPorAntiguedad.data.get(ordenesPorAntiguedad[i]).setHandle(ordenesPorRedito[i]);
         }
     }
 
     public void registrarTraslados(Traslado[] traslados){
-        for (int i = 0; i < traslados.length; i++) {
-            TrasladoHandles nuevoRedito = new TrasladoHandles(traslados[i], i);
-            int posRedituable = trasladosPorRedito.registrar(nuevoRedito);
-            
-            int j = trasladosPorRedito.tamaño - 1;
+        for (int i = 0; i < traslados.length; i++) {                                    //O(T)
+            TrasladoHandles nuevoRedito = new TrasladoHandles(traslados[i], i);         //O(1)
+            int posRedituable = trasladosPorRedito.registrar(nuevoRedito);              //O(log(T))
 
-            while (j > posRedituable) {
-                trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle).handle = j;
-                j = (j - 1)/2;
-            }
+            //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
+
+            actualizarHandles(traslados, trasladosPorRedito.tamaño() - 1, posRedituable, trasladosPorRedito, trasladosPorAntiguedad);
 
             TrasladoHandles nuevoAntiguedad = new TrasladoHandles(traslados[i], posRedituable);
-            int posAntiguedad = trasladosPorAntiguedad.registrar(nuevoAntiguedad);
+            int posAntiguedad = trasladosPorAntiguedad.registrar(nuevoAntiguedad);      //O(log(T))
 
-            j = trasladosPorAntiguedad.tamaño - 1;
+            //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
 
-            while (j > posAntiguedad) {
-                trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle).handle = j;
-                j = (j - 1)/2;
-            }
+            trasladosPorRedito.data.get(posRedituable).setHandle(posAntiguedad);
 
-            trasladosPorRedito.data.get(posRedituable).handle = posAntiguedad;            
+            actualizarHandles(traslados, trasladosPorAntiguedad.tamaño() - 1, posAntiguedad, trasladosPorAntiguedad, trasladosPorRedito);
+
+            trasladosPorAntiguedad.data.get(posAntiguedad).setHandle(posRedituable);      //O(1) 
         }
     }
 
-    public int[] despacharMasRedituables(int n){
-        Traslado[] traslados = new Traslado[n];
-        for (int i = 0; i < n; i++) {
-            DataDespachado dataDespachadoRedito = trasladosPorRedito.eliminar(0);
-            traslados[n-i-1] = dataDespachadoRedito.traslado.traslado;
-
-            int j = dataDespachadoRedito.posHoja;
-
-            while (j > 0) {
-                if (trasladosPorRedito.data.get(j) != null)
-                    trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle).handle = j;
-                j = (j - 1)/2;
-            }
-
-            trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle).handle = j;
-            
-            DataDespachado dataDespachadoAntiguedad = trasladosPorAntiguedad.eliminar(dataDespachadoRedito.traslado.handle);
-
-            j = dataDespachadoAntiguedad.posHoja;
-
-            while (j > 0) {
-                if (trasladosPorAntiguedad.data.get(j) != null)
-                    trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle).handle = j;
-                j = (j - 1)/2;
-            }
-
-            trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle).handle = j;
+    public int[] despacharMasRedituables(int n){                                            //O(nlog(T) + n) = O(nlog(T))
+        if (n > trasladosPorRedito.tamaño()) {                                          
+            return despacharMasRedituables(trasladosPorRedito.tamaño());
         }
 
-        actualizarEstadisticas(traslados);
+        Traslado[] traslados = new Traslado[n];                                             //O(1)
+        for (int i = 0; i < n; i++) {                                                       //O(n)
+            DataDespachado dataDespachadoRedito = trasladosPorRedito.eliminar(0);    //O(log(T))
+            traslados[n-i-1] = dataDespachadoRedito.traslado().traslado();                      //O(1)
+
+
+            //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
+
+            int j = dataDespachadoRedito.posHoja();
+
+            while (j > 0) {                                                                 //log(T) iteraciones porque recorre la altura
+                if (trasladosPorRedito.data.get(j) != null)
+                    trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle()).setHandle(j);
+                j = (j - 1)/2;
+            }
+
+            if (trasladosPorRedito.tamaño() > 0)
+                trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle()).setHandle(j);
+            
+            DataDespachado dataDespachadoAntiguedad = trasladosPorAntiguedad.eliminar(dataDespachadoRedito.traslado().handle()); //O(log(T))
+
+            //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
+
+            j = dataDespachadoAntiguedad.posHoja();
+
+            while (j > 0) {                                                                 //log(T) iteraciones porque recorre la altura
+                if (trasladosPorAntiguedad.data.get(j) != null)
+                    trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle()).setHandle(j);
+                j = (j - 1)/2;
+            }
+
+            if (trasladosPorAntiguedad.tamaño() > 0)
+                trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle()).setHandle(j);
+        }
+
+        actualizarEstadisticas(traslados);                                                  //O(n)
 
         int[] res = new int[n];
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {                                                       //O(n)
             res[i] = traslados[i].id;
         }
 
         return res;
     }
 
-    public int[] despacharMasAntiguos(int n){
+    public int[] despacharMasAntiguos(int n){                                               //O(nlog(T) + n) = O(nlog(T))
+        if (n > trasladosPorAntiguedad.tamaño()) {
+            return despacharMasRedituables(trasladosPorAntiguedad.tamaño());
+        }
+
         Traslado[] traslados = new Traslado[n];
         for (int i = 0; i < n; i++) {
             DataDespachado dataDespachadoAntiguedad = trasladosPorAntiguedad.eliminar(0);
-            traslados[n-i-1] = dataDespachadoAntiguedad.traslado.traslado;
+            traslados[n-i-1] = dataDespachadoAntiguedad.traslado().traslado();
 
-            int j = dataDespachadoAntiguedad.posHoja;
+            //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
+
+            int j = dataDespachadoAntiguedad.posHoja();
 
             while (j > 0) {
                 if (trasladosPorAntiguedad.data.get(j) != null)
-                    trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle).handle = j;
+                    trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle()).setHandle(j);
                 j = (j - 1)/2;
             }
 
-            trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle).handle = j;
+            if (trasladosPorAntiguedad.tamaño() > 0)
+                trasladosPorRedito.data.get(trasladosPorAntiguedad.data.get(j).handle()).setHandle(j);
 
-            DataDespachado dataDespachadoRedito = trasladosPorRedito.eliminar(dataDespachadoAntiguedad.traslado.handle);
+            DataDespachado dataDespachadoRedito = trasladosPorRedito.eliminar(dataDespachadoAntiguedad.traslado().handle());
 
-            j = dataDespachadoRedito.posHoja;
+            //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
+
+            j = dataDespachadoRedito.posHoja();
 
             while (j > 0) {
                 if (trasladosPorRedito.data.get(j) != null) {
-                    trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle).handle = j;
+                    trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle()).setHandle(j);
                 }
                 j = (j - 1)/2;
             }
 
-            trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle).handle = j;
+            if (trasladosPorRedito.tamaño() > 0)
+                trasladosPorAntiguedad.data.get(trasladosPorRedito.data.get(j).handle()).setHandle(j);
         }
         actualizarEstadisticas(traslados);
 
@@ -138,41 +155,49 @@ public class BestEffort {
         return res;
     }
 
-    public int ciudadConMayorSuperavit(){
+    public int ciudadConMayorSuperavit(){                                                   //O(1)
         return estadisticas.ciudadConMayorSuperavit();
     }
 
-    public ArrayList<Integer> ciudadesConMayorGanancia(){
+    public ArrayList<Integer> ciudadesConMayorGanancia(){                                   //O(1)
         return estadisticas.ciudadesConMayorGanancia();
     }
 
-    public ArrayList<Integer> ciudadesConMayorPerdida(){
+    public ArrayList<Integer> ciudadesConMayorPerdida(){                                    //O(1)
         return estadisticas.ciudadesConMayorPerdida();
     }
 
-    public int gananciaPromedioPorTraslado(){
+    public int gananciaPromedioPorTraslado(){                                               //O(1)
         return estadisticas.gananciaPromedioPorTraslado();
+    }
+
+    private void actualizarHandles(Traslado[] traslados, int desde, int hasta, Heap<TrasladoHandles> heapEditado, Heap<TrasladoHandles> heapHandles) {
+        while (desde > hasta) {                                                 //log(T) iteraciones porque recorre la altura
+            heapHandles.data.get(heapEditado.data.get(desde).handle()).setHandle(desde);
+            desde = (desde - 1)/2;
+        }
     }
     
     private void actualizarEstadisticas(Traslado[] traslados) {
-        for (int i = 0; i < traslados.length; i++) {
+        for (int i = 0; i < traslados.length; i++) {                                //n iteraciones
             Traslado t = traslados[i];
             
-            ciudades[t.origen].aumentarGanancia(t.gananciaNeta);
-            int ganancia = ciudades[t.origen].ganancia;
-            int superavitNuevo = ciudades[t.origen].superavit();
-            estadisticas.chequearMaximoGanancia(t.origen, ganancia);
+            ciudades[t.origen].aumentarGanancia(t.gananciaNeta);                    //O(1)
+            int ganancia = ciudades[t.origen].ganancia();
+            int superavitNuevo = ciudades[t.origen].superavit();                    //O(1)
+            estadisticas.chequearMaximoGanancia(t.origen, ganancia);                //O(1)
             
-            ciudades[t.destino].aumentarPerdida(t.gananciaNeta);
-            int perdida = ciudades[t.destino].perdida;
-            estadisticas.chequearMaximoPerdida(t.destino, perdida);
+            ciudades[t.destino].aumentarPerdida(t.gananciaNeta);                    //O(1)
+            int perdida = ciudades[t.destino].perdida();                            //O(1)
+            estadisticas.chequearMaximoPerdida(t.destino, perdida);                 //O(1)
 
-            int ciudadConMayorSuperavit = estadisticas.ciudadConMayorSuperavit();
-            int superavitMaximo = ciudades[ciudadConMayorSuperavit].superavit();
+            int ciudadConMayorSuperavit = estadisticas.ciudadConMayorSuperavit();   //O(1)
+            int superavitMaximo = ciudades[ciudadConMayorSuperavit].superavit();    //O(1)
 
-            estadisticas.chequearMaximoSuperavit(superavitMaximo, superavitNuevo, t.origen);
+            estadisticas.chequearMaximoSuperavit(superavitMaximo, superavitNuevo, t.origen);    //O(1)
 
-            estadisticas.aumentarGananciaTotal(t.gananciaNeta);
+            estadisticas.aumentarGananciaTotal(t.gananciaNeta);                                 //O(1)
+            estadisticas.aumentarTraslados();                                                   //O(1)
         }
     }
 }

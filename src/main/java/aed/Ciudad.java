@@ -1,8 +1,8 @@
 package aed;
 
 public class Ciudad {
-    public int ganancia;
-    public int perdida;
+    private int ganancia;
+    private int perdida;
 
     public Ciudad() {
         ganancia = 0;
@@ -19,5 +19,13 @@ public class Ciudad {
 
     public void aumentarPerdida(int p) {
         perdida = perdida + p;
+    }
+
+    public int ganancia() {
+        return ganancia;
+    }
+
+    public int perdida() {
+        return perdida;
     }
 }
