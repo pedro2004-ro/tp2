@@ -4,15 +4,15 @@ import java.util.ArrayList;
 
 public class Estadisticas {
     private ArrayList<Integer> ciudadesPorMayorGanancia;
-    private int mayorGanancia;
     private ArrayList<Integer> ciudadesPorMayorPerdida;
+    private Heap<Ciudad> ciudadesPorSuperavit;
+    private int[] posicionDeCiudadesPorSuperavit;
+    private int mayorGanancia;
     private int mayorPerdida;
-    private int ciudadMayorSuperavit;
-    private int mayorSuperavit;
     private int traslados;
     private int gananciaTotal;
 
-    public Estadisticas() {
+    public Estadisticas(int cantCiudades) {
         ciudadesPorMayorGanancia = new ArrayList<Integer>();
         ciudadesPorMayorGanancia.add(0);
         mayorGanancia = 0;
@@ -21,8 +21,16 @@ public class Estadisticas {
         ciudadesPorMayorPerdida.add(0);
         mayorPerdida = 0;
 
-        ciudadMayorSuperavit = 0;
-        mayorSuperavit = 0;
+        Ciudad[] ciudades = new Ciudad[cantCiudades];
+        int[] ordenes = new int[cantCiudades];
+
+        for (int i = 0; i < cantCiudades; i++) {
+            ciudades[i] = new Ciudad();
+            ordenes[i] = i;
+        }
+
+        ciudadesPorSuperavit = new Heap<Ciudad>(ciudades, new ComparadorPorSuperavit<Handler<Ciudad>>(), ordenes);
+        posicionDeCiudadesPorSuperavit = ordenes;
 
         traslados = 0;
         gananciaTotal = 0;
@@ -47,25 +55,18 @@ public class Estadisticas {
         }
     }
 
-    public void chequearMaximoSuperavit(int superavitMaximo, int superavitNuevo, int indice) {
-        if (superavitNuevo > superavitMaximo) {
-            mayorSuperavit = superavitNuevo;
-            ciudadMayorSuperavit = indice;
-        }
+    public void chequearMaximoSuperavit(int origen, int destino) {
+        ciudadesPorSuperavit.revisarPosicion(posicionDeCiudadesPorSuperavit[origen], posicionDeCiudadesPorSuperavit);   //O(log(C))
 
-        if (superavitNuevo == superavitMaximo) {
-            if (indice < ciudadMayorSuperavit) {
-                mayorSuperavit = superavitNuevo;
-                ciudadMayorSuperavit = indice;
-            }
-            else {
-                mayorSuperavit = superavitMaximo;
-            }
-        }
+        ciudadesPorSuperavit.revisarPosicion(posicionDeCiudadesPorSuperavit[destino], posicionDeCiudadesPorSuperavit);  //O(log(C))
+    }
 
-        if (superavitMaximo > superavitNuevo) {
-            mayorSuperavit = superavitMaximo;
-        }
+    public void aumentarGananciaCiudad(int ciudad, int ganancia) {
+        ciudadesPorSuperavit.data().get(posicionDeCiudadesPorSuperavit[ciudad]).dato().aumentarGanancia(ganancia);
+    }
+
+    public void aumentarPerdidaCiudad(int ciudad, int perdida) {
+        ciudadesPorSuperavit.data().get(posicionDeCiudadesPorSuperavit[ciudad]).dato().aumentarPerdida(perdida);
     }
 
     public void aumentarGananciaTotal(int g) {
@@ -73,7 +74,7 @@ public class Estadisticas {
     }
 
     public int ciudadConMayorSuperavit() {
-        return ciudadMayorSuperavit;
+        return ciudadesPorSuperavit.tope().handle();
     }
 
     public ArrayList<Integer> ciudadesConMayorGanancia() {

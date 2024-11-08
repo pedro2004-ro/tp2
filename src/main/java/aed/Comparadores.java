@@ -1,8 +1,8 @@
 package aed;
 
-class ComparadorPorRedito<T> implements Comparador<TrasladoHandles> {
+class ComparadorPorRedito<T> implements Comparador<Handler<Traslado>> {
     @Override
-    public int comparar(TrasladoHandles a, TrasladoHandles b) {
+    public int comparar(Handler<Traslado> a, Handler<Traslado> b) {
         if (a == null && b == null) {
             return 0;
         }
@@ -12,10 +12,10 @@ class ComparadorPorRedito<T> implements Comparador<TrasladoHandles> {
         else if (b == null) {
             return 1;
         }
-        else if (a.traslado().gananciaNeta > b.traslado().gananciaNeta)
+        else if (a.dato().gananciaNeta > b.dato().gananciaNeta)
             return 1;
-        else if (a.traslado().gananciaNeta == b.traslado().gananciaNeta) {
-            if (a.traslado().id < b.traslado().id) 
+        else if (a.dato().gananciaNeta == b.dato().gananciaNeta) {
+            if (a.dato().id < b.dato().id) 
                 return 1;
             else 
                 return -1;
@@ -25,9 +25,9 @@ class ComparadorPorRedito<T> implements Comparador<TrasladoHandles> {
     }
 }
 
-class ComparadorPorAntiguedad<T> implements Comparador<TrasladoHandles> {
+class ComparadorPorAntiguedad<T> implements Comparador<Handler<Traslado>> {
     @Override
-    public int comparar(TrasladoHandles a, TrasladoHandles b) {
+    public int comparar(Handler<Traslado> a, Handler<Traslado> b) {
         if (a == null && b == null) {
             return -0;
         }
@@ -37,10 +37,30 @@ class ComparadorPorAntiguedad<T> implements Comparador<TrasladoHandles> {
         else if (b == null) {
             return 1;
         }
-        else if (a.traslado().timestamp < b.traslado().timestamp) {
+        else if (a.dato().timestamp < b.dato().timestamp) {
             return 1;
         }
         else
             return -1;
+    }
+}
+
+class ComparadorPorSuperavit<T> implements Comparador<Handler<Ciudad>> {
+    @Override
+    public int comparar(Handler<Ciudad> a, Handler<Ciudad> b) {
+        if (a.dato().superavit() > b.dato().superavit()) {
+            return 1;
+        }
+        else if (a.dato().superavit() < b.dato().superavit()) {
+            return -1;
+        }
+        else {
+            if (a.handle() < b.handle()) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
+        }
     }
 }

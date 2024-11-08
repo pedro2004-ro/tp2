@@ -3,19 +3,19 @@ package aed;
 import java.util.ArrayList;
 
 public class Heap<T> {
-    public ArrayList<TrasladoHandles> data;
-    private Comparador<TrasladoHandles> prioridad;
+    private ArrayList<Handler<T>> data;
+    private Comparador<Handler<T>> prioridad;
     private int tamaño;
 
-    public Heap(Traslado[] traslados, Comparador<TrasladoHandles> c, int[] ordenes) {
-        data = new ArrayList<TrasladoHandles>();                //O(1)
+    public Heap(T[] datosIniciales, Comparador<Handler<T>> c, int[] ordenes) {
+        data = new ArrayList<Handler<T>>();                //O(1)
 
-        for (int i = 0; i < traslados.length; i++) {            //O(T)
-            data.add(new TrasladoHandles(traslados[i], i));
+        for (int i = 0; i < datosIniciales.length; i++) {            //O(T)
+            data.add(new Handler<T>(datosIniciales[i], i));
             ordenes[i] = i;
         }
         
-        tamaño = traslados.length;                              //O(1)
+        tamaño = datosIniciales.length;                              //O(1)
         int i = padre(tamaño - 1);                              //O(1)
 
         prioridad = c;                                          //O(1)
@@ -23,7 +23,7 @@ public class Heap<T> {
         array2Heap(i, ordenes);                                 //O(T)
     }
 
-    public int registrar(TrasladoHandles nuevo) {               //O(log(T))
+    public int registrar(Handler<T> nuevo) {               //O(log(T))
         int i = tamaño;                                         //O(1)
 
         if (tamaño == data.size())
@@ -32,7 +32,7 @@ public class Heap<T> {
             data.set(tamaño, nuevo);
 
         while (i > 0 && prioridad.comparar(data.get(padre(i)), data.get(i)) < 0) {  //log(T) iteraciones pq recorre la altura
-            TrasladoHandles p = data.set(padre(i), nuevo);
+            Handler<T> p = data.set(padre(i), nuevo);
             data.set(i, p);
             i = padre(i);
         }
@@ -42,8 +42,8 @@ public class Heap<T> {
         return i;
     }
 
-    public DataDespachado eliminar(int indice) {
-        TrasladoHandles despachado = data.set(indice, data.get(tamaño - 1));    //O(1)
+    public Despachado<T> eliminar(int indice) {
+        Handler<T> despachado = data.set(indice, data.get(tamaño - 1));    //O(1)
 
         data.set(tamaño - 1, null);                                     //O(1)
         tamaño--;                                                               //O(1)
@@ -52,9 +52,28 @@ public class Heap<T> {
 
         i = siftDown(i, null);                                          
 
-        DataDespachado dataDespachado = new DataDespachado(despachado, i);
+        Despachado<T> dataDespachado = new Despachado<T>(despachado, i);
 
         return dataDespachado;
+    }
+
+    public Handler<T> tope() {
+        return data.get(0);
+    }
+
+    public void revisarPosicion(int indice, int[] ordenes) {
+        indice = siftDown(indice, ordenes);                                                         //O(log(C))
+        while (indice > 0 && prioridad.comparar(data.get(padre(indice)), data.get(indice)) < 0) {   //O(log(C))
+            Handler<T> p = data.set(padre(indice), data.get(indice));
+            data.set(indice, p);
+            ordenes[p.handle()] = indice;
+            indice = padre(indice);
+            ordenes[data.get(indice).handle()] = indice;
+        }
+    }
+
+    public ArrayList<Handler<T>> data() {
+        return data;
     }
 
     private void array2Heap(int i, int[] ordenes) {
@@ -68,7 +87,7 @@ public class Heap<T> {
 
     private int siftDown(int i, int[] ordenes) {                    //log(T)
         while (i < tamaño && !hijosMenores(i)) {                    //log(T) iteraciones porque recorre la altura
-            TrasladoHandles swap;                                   //O(1)
+            Handler<T> swap;                                   //O(1)
             if (hijoDer(i) >= tamaño) {
                 swap = data.set(i, data.get(hijoIzq(i)));
                 if (ordenes != null)
@@ -76,7 +95,7 @@ public class Heap<T> {
                 i = hijoIzq(i);
             }
             else {
-                TrasladoHandles hijoMaximo = max(data.get(hijoIzq(i)), data.get(hijoDer(i)));
+                Handler<T> hijoMaximo = max(data.get(hijoIzq(i)), data.get(hijoDer(i)));
                 if (ordenes != null)
                     ordenes[hijoMaximo.handle()] = i;
                 swap = data.set(i, hijoMaximo);
@@ -112,7 +131,7 @@ public class Heap<T> {
         (hijoIzq(i) >= tamaño || prioridad.comparar(data.get(i), data.get(hijoIzq(i))) >= 0);
     }
 
-    private TrasladoHandles max(TrasladoHandles t, TrasladoHandles s) {
+    private Handler<T> max(Handler<T> t, Handler<T> s) {
         if (prioridad.comparar(t, s) > 0)
             return t;
         else
