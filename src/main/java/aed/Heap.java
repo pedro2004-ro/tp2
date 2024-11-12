@@ -16,7 +16,7 @@ public class Heap<T> {
         }
         
         tamaño = datosIniciales.length;                              //O(1)
-        int i = padre(tamaño - 1);                              //O(1)
+        int i = dosALa(altura(tamaño)) - 2;                          //O(1)
 
         prioridad = c;                                          //O(1)
 
@@ -87,11 +87,13 @@ public class Heap<T> {
 
     private int siftDown(int i, int[] ordenes) {                    //log(T)
         while (i < tamaño && !hijosMenores(i)) {                    //log(T) iteraciones porque recorre la altura
-            Handler<T> swap;                                   //O(1)
+            Handler<T> swap;                                        //O(1)
             if (hijoDer(i) >= tamaño) {
                 swap = data.set(i, data.get(hijoIzq(i)));
-                if (ordenes != null)
+                if (ordenes != null) {
+                    ordenes[data.get(i).handle()] = i;
                     ordenes[swap.handle()] = hijoIzq(i);
+                }
                 i = hijoIzq(i);
             }
             else {
@@ -117,6 +119,73 @@ public class Heap<T> {
 
         return i;
     }
+
+    private int altura(int n) {
+        int log = 0;
+        int i = n;
+
+        while (i > 1) {
+            i /= 2;
+            log++;
+        }
+
+        if (n > dosALa(log))
+            return log + 1;
+        else
+            return log;
+    }
+
+    private int dosALa(int n) {
+        int res = 1;
+        while (n > 0) {
+            res *= 2;
+            n--;
+        }
+
+        return res;
+    }
+
+    /* 
+
+    @Override
+    public String toString() {
+        String res = "";
+        int maxFilas = log2Ceil(tamaño);
+        int fila = 0;
+        int tamañoFila = tamaño / 2;
+
+        while (fila < maxFilas) {
+            String filaOut = generarFila(fila, tamañoFila);
+        }
+
+        return res;
+    }
+
+    private String generarFila(int fila, int tamañoFila) {
+        double espacios = tamañoFila - Math.pow(2, fila + 1);
+    }
+
+    private int log2Ceil(int n) {
+        int log = 0;
+        int i = n;
+
+        while (i > 1) {
+            i /= 2;
+            log++;
+        }
+
+        if (n > Math.pow(2, log))
+            return log + 1;
+        else
+            return log;
+    }
+
+    private double potenciaDeDosCeil(int n) {
+        while (n > 0)
+        return Math.pow(2, log2Ceil(n));
+    }
+
+    */
 
     public int tamaño() {
         return tamaño;

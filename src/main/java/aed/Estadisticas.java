@@ -14,11 +14,15 @@ public class Estadisticas {
 
     public Estadisticas(int cantCiudades) {
         ciudadesPorMayorGanancia = new ArrayList<Integer>();
-        ciudadesPorMayorGanancia.add(0);
+        for (int i = 0; i < cantCiudades; i++) {
+            ciudadesPorMayorGanancia.add(i);
+        }
         mayorGanancia = 0;
 
         ciudadesPorMayorPerdida = new ArrayList<Integer>();
-        ciudadesPorMayorPerdida.add(0);
+        for (int i = 0; i < cantCiudades; i++) {
+            ciudadesPorMayorPerdida.add(i);
+        }
         mayorPerdida = 0;
 
         Ciudad[] ciudades = new Ciudad[cantCiudades];

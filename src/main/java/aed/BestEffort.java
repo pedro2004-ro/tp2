@@ -55,6 +55,10 @@ public class BestEffort {
     }
 
     public int[] despacharMasRedituables(int n){                                            //O(n(log(T) + log(C)))
+        if (n == 0) {
+            return null;
+        }
+
         if (n > trasladosPorRedito.tamaño()) {                                          
             return despacharMasRedituables(trasladosPorRedito.tamaño());
         }
@@ -62,10 +66,7 @@ public class BestEffort {
         Traslado[] traslados = new Traslado[n];                                             //O(1)
         for (int i = 0; i < n; i++) {                                                       //O(n)
             Despachado<Traslado> dataDespachadoRedito = trasladosPorRedito.eliminar(0);    //O(log(T))
-            traslados[n-i-1] = dataDespachadoRedito.traslado().dato();                      //O(1)
-
-
-            //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
+            traslados[i] = dataDespachadoRedito.traslado().dato();                      //O(1)
 
             actualizarHandles(traslados, dataDespachadoRedito.posHoja(), 0, trasladosPorRedito, trasladosPorAntiguedad);    //O(log(T))
 
@@ -73,8 +74,6 @@ public class BestEffort {
                 trasladosPorAntiguedad.data().get(trasladosPorRedito.data().get(0).handle()).setHandle(0);
             
             Despachado<Traslado> dataDespachadoAntiguedad = trasladosPorAntiguedad.eliminar(dataDespachadoRedito.traslado().handle()); //O(log(T))
-
-            //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
 
             actualizarHandles(traslados, dataDespachadoAntiguedad.posHoja(), 0, trasladosPorAntiguedad, trasladosPorRedito);    //O(log(T))
 
@@ -94,16 +93,18 @@ public class BestEffort {
     }
 
     public int[] despacharMasAntiguos(int n){                                               //O(n(log(T) + log(C)))
+        if (n == 0) {
+            return null;                                                                    //Salida nula si el input es 0
+        }
+
         if (n > trasladosPorAntiguedad.tamaño()) {
-            return despacharMasRedituables(trasladosPorAntiguedad.tamaño());
+            return despacharMasAntiguos(trasladosPorAntiguedad.tamaño());                   //Para evitar traslados nulos
         }
 
         Traslado[] traslados = new Traslado[n];
         for (int i = 0; i < n; i++) {
             Despachado<Traslado> dataDespachadoAntiguedad = trasladosPorAntiguedad.eliminar(0);
-            traslados[n-i-1] = dataDespachadoAntiguedad.traslado().dato();
-
-            //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
+            traslados[i] = dataDespachadoAntiguedad.traslado().dato();
 
             actualizarHandles(traslados, dataDespachadoAntiguedad.posHoja(), 0, trasladosPorAntiguedad, trasladosPorRedito);    //O(log(T))
 
@@ -111,8 +112,6 @@ public class BestEffort {
                 trasladosPorRedito.data().get(trasladosPorAntiguedad.data().get(0).handle()).setHandle(0);
 
             Despachado<Traslado> dataDespachadoRedito = trasladosPorRedito.eliminar(dataDespachadoAntiguedad.traslado().handle());
-
-            //HEAP IMPLEMENTA ESTE PROCEDIMIENTO!!!!
 
             actualizarHandles(traslados, dataDespachadoRedito.posHoja(), 0, trasladosPorRedito, trasladosPorAntiguedad);    //O(log(T))
 
@@ -146,6 +145,13 @@ public class BestEffort {
         return estadisticas.gananciaPromedioPorTraslado();
     }
 
+    @Override
+    public String toString() {
+        String res = "";
+        res += trasladosPorAntiguedad;
+        return res;
+    }
+
     private void actualizarHandles(Traslado[] traslados, int desde, int hasta, Heap<Traslado> heapEditado, Heap<Traslado> heapHandles) {  //O(log(T))
         while (desde > hasta) {                                                 //log(T) iteraciones porque recorre la altura
             if (heapEditado.data().get(desde) != null)
@@ -158,21 +164,23 @@ public class BestEffort {
         for (int i = 0; i < traslados.length; i++) {                                //n iteraciones
             Traslado t = traslados[i];
             
-            ciudades[t.origen].aumentarGanancia(t.gananciaNeta);                    //O(1)
-            estadisticas.aumentarGananciaCiudad(t.origen, t.gananciaNeta);
+            if (t.origen != t.destino) {
+                ciudades[t.origen].aumentarGanancia(t.gananciaNeta);                    //O(1)
+                estadisticas.aumentarGananciaCiudad(t.origen, t.gananciaNeta);
+                
+                int ganancia = ciudades[t.origen].ganancia();
+                estadisticas.chequearMaximoGanancia(t.origen, ganancia);                //O(1)
+                
+                ciudades[t.destino].aumentarPerdida(t.gananciaNeta);                    //O(1)
+                estadisticas.aumentarPerdidaCiudad(t.destino, t.gananciaNeta);
+
+                int perdida = ciudades[t.destino].perdida();                            //O(1)
+                estadisticas.chequearMaximoPerdida(t.destino, perdida);                 //O(1)
+
+
+                estadisticas.chequearMaximoSuperavit(t.origen, t.destino);              //O(log(C))
+            }
             
-            int ganancia = ciudades[t.origen].ganancia();
-            estadisticas.chequearMaximoGanancia(t.origen, ganancia);                //O(1)
-            
-            ciudades[t.destino].aumentarPerdida(t.gananciaNeta);                    //O(1)
-            estadisticas.aumentarPerdidaCiudad(t.destino, t.gananciaNeta);
-
-            int perdida = ciudades[t.destino].perdida();                            //O(1)
-            estadisticas.chequearMaximoPerdida(t.destino, perdida);                 //O(1)
-
-
-            estadisticas.chequearMaximoSuperavit(t.origen, t.destino);              //O(log(C))
-
             estadisticas.aumentarGananciaTotal(t.gananciaNeta);                                 //O(1)
             estadisticas.aumentarTraslados();                                                   //O(1)
         }
