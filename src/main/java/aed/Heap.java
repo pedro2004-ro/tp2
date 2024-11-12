@@ -16,7 +16,7 @@ public class Heap<T> {
         }
         
         tamaño = datosIniciales.length;                              //O(1)
-        int i = dosALa(altura(tamaño)) - 2;                          //O(1)
+        int i = dosALa(altura(tamaño) - 1) - 2;                      //O(1) se sitúa en la última posicion del penúltimo nivel
 
         prioridad = c;                                          //O(1)
 
