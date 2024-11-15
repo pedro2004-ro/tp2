@@ -102,4 +102,29 @@ public class BETestsPropios {
         assertEquals(1, sis.ciudadConMayorSuperavit());
     }
 
+    @Test
+    void stress() {
+        Traslado[] t = TrasladoGenerator.generarNTraslados(19838644, cantCiudades, 40);
+
+        BestEffort sis = new BestEffort(cantCiudades, t);
+
+        sis.despacharMasAntiguos(5);
+        sis.despacharMasRedituables(30);
+
+        sis.registrarTraslados(TrasladoGenerator.generarNTraslados(244442, cantCiudades, 5));
+
+        for (int i = 0; i < 10; i++) {
+            sis.despacharMasAntiguos(1);
+        }
+
+        int seed = 12987;
+
+        for (int i = 1; i < 10; i++) {
+            Traslado[] nuevos = TrasladoGenerator.generarNTraslados((seed*i + 2) % 5 + 1, cantCiudades, 100*i);
+
+            sis.registrarTraslados(nuevos);
+        }
+
+        sis.despacharMasAntiguos(24);
+    }
 }
