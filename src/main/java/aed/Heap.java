@@ -10,17 +10,17 @@ public class Heap<T> {
     public Heap(T[] datosIniciales, Comparador<Handler<T>> c, int[] ordenes) {
         data = new ArrayList<Handler<T>>();                //O(1)
 
-        for (int i = 0; i < datosIniciales.length; i++) {            //O(T)
+        for (int i = 0; i < datosIniciales.length; i++) {           //O(T)
             data.add(new Handler<T>(datosIniciales[i], i));
             ordenes[i] = i;
         }
         
-        tamaño = datosIniciales.length;                              //O(1)
-        int i = dosALa(altura(tamaño) - 1) - 2;                      //O(1) se sitúa en la última posicion del penúltimo nivel
+        tamaño = datosIniciales.length;                             //O(1)
+        int i = padre(tamaño - 1);                                  //O(1) se sitúa en la última posicion del penúltimo nivel
 
-        prioridad = c;                                          //O(1)
+        prioridad = c;                                              //O(1)
 
-        array2Heap(i, ordenes);                                 //O(T)
+        array2Heap(i, ordenes);                                     //O(T)
     }
 
     public int registrar(Handler<T> nuevo) {               //O(log(T))
@@ -118,31 +118,6 @@ public class Heap<T> {
         }
 
         return i;
-    }
-
-    private int altura(int n) {
-        int log = 0;
-        int i = n;
-
-        while (i > 1) {
-            i /= 2;
-            log++;
-        }
-
-        if (n > dosALa(log))
-            return log + 1;
-        else
-            return log;
-    }
-
-    private int dosALa(int n) {
-        int res = 1;
-        while (n > 0) {
-            res *= 2;
-            n--;
-        }
-
-        return res;
     }
 
     /* 

@@ -66,14 +66,14 @@ public class BestEffort {
         Traslado[] traslados = new Traslado[n];                                             //O(1)
         for (int i = 0; i < n; i++) {                                                       //O(n)
             Despachado<Traslado> dataDespachadoRedito = trasladosPorRedito.eliminar(0);    //O(log(T))
-            traslados[i] = dataDespachadoRedito.traslado().dato();                      //O(1)
+            traslados[i] = dataDespachadoRedito.dato().dato();                      //O(1)
 
             actualizarHandles(traslados, dataDespachadoRedito.posHoja(), 0, trasladosPorRedito, trasladosPorAntiguedad);    //O(log(T))
 
             if (trasladosPorRedito.tamaño() > 0)
                 trasladosPorAntiguedad.data().get(trasladosPorRedito.data().get(0).handle()).setHandle(0);
             
-            Despachado<Traslado> dataDespachadoAntiguedad = trasladosPorAntiguedad.eliminar(dataDespachadoRedito.traslado().handle()); //O(log(T))
+            Despachado<Traslado> dataDespachadoAntiguedad = trasladosPorAntiguedad.eliminar(dataDespachadoRedito.dato().handle()); //O(log(T))
 
             actualizarHandles(traslados, dataDespachadoAntiguedad.posHoja(), 0, trasladosPorAntiguedad, trasladosPorRedito);    //O(log(T))
 
@@ -104,14 +104,14 @@ public class BestEffort {
         Traslado[] traslados = new Traslado[n];
         for (int i = 0; i < n; i++) {
             Despachado<Traslado> dataDespachadoAntiguedad = trasladosPorAntiguedad.eliminar(0);
-            traslados[i] = dataDespachadoAntiguedad.traslado().dato();
+            traslados[i] = dataDespachadoAntiguedad.dato().dato();
 
             actualizarHandles(traslados, dataDespachadoAntiguedad.posHoja(), 0, trasladosPorAntiguedad, trasladosPorRedito);    //O(log(T))
 
             if (trasladosPorAntiguedad.tamaño() > 0)
                 trasladosPorRedito.data().get(trasladosPorAntiguedad.data().get(0).handle()).setHandle(0);
 
-            Despachado<Traslado> dataDespachadoRedito = trasladosPorRedito.eliminar(dataDespachadoAntiguedad.traslado().handle());
+            Despachado<Traslado> dataDespachadoRedito = trasladosPorRedito.eliminar(dataDespachadoAntiguedad.dato().handle());
 
             actualizarHandles(traslados, dataDespachadoRedito.posHoja(), 0, trasladosPorRedito, trasladosPorAntiguedad);    //O(log(T))
 
