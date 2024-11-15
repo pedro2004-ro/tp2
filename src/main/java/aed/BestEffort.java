@@ -11,16 +11,16 @@ public class BestEffort {
     public BestEffort(int cantCiudades, Traslado[] traslados){
         ciudades = new Ciudad[cantCiudades];                    //O(1)
 
-        for (int i = 0; i < cantCiudades; i++) {                //O(C)
-            ciudades[i] = new Ciudad();
+        for (int i = 0; i < cantCiudades; i++) {                // |C| iteraciones, y como lo de adentro del for es O(1), el costo es O(|C|)
+            ciudades[i] = new Ciudad();                         // O(1)
         }
 
-        estadisticas = new Estadisticas(cantCiudades);                      //O(1)
+        estadisticas = new Estadisticas(cantCiudades);          //O(1)
 
         int[] ordenesPorRedito = new int[traslados.length];     //O(1)
         int[] ordenesPorAntiguedad = new int[traslados.length]; //O(1)
 
-        trasladosPorRedito = new Heap<Traslado>(traslados, new ComparadorPorRedito<Handler<Traslado>>(), ordenesPorRedito);
+        trasladosPorRedito = new Heap<Traslado>(traslados, new ComparadorPorRedito<Handler<Traslado>>(), ordenesPorRedito);  
         trasladosPorAntiguedad = new Heap<Traslado>(traslados, new ComparadorPorAntiguedad<Handler<Traslado>>(), ordenesPorAntiguedad);
 
         for (int i = 0; i < ordenesPorRedito.length; i++) {                                     //O(T)

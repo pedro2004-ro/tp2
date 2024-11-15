@@ -4,7 +4,7 @@ public class Despachado<T> {
     private Handler<T> dato;
     private int posHoja;
 
-    public Despachado(Handler<T> t, int pos) {
+    public Despachado(Handler<T> t, int pos) { //O(1)
         dato = t;
         posHoja = pos;
     }
