@@ -12,7 +12,7 @@ public class Heap<T> {
     //los heaps esten siempre sincronizados y tenga los mismos elementos, y en el caso de las ciudades, para saber siempre en que posición del heap se encuentra cada una.
 
 
-    public Heap(T[] datosIniciales, Comparador<Handler<T>> c, int[] ordenes) {   // n = |datosIniciales| = |ordenes|
+    public Heap(T[] datosIniciales, Comparador<Handler<T>> c, int[] ordenes) {   // O(n) donde n = |datosIniciales| = |ordenes|
         data = new ArrayList<Handler<T>>();                         //O(1)
 
         for (int i = 0; i < datosIniciales.length; i++) {           // n iteraciones, como lo de adentro del for es O(1), el costo es O(n)
@@ -25,7 +25,7 @@ public class Heap<T> {
         prioridad = c;                                              //O(1)
 
         array2Heap(i, ordenes);                                     //O(n)
-    }
+    } 
 
     public int registrar(Handler<T> nuevo) {               //O(log(n))
         int i = tamaño;                                    //O(1)
@@ -36,14 +36,14 @@ public class Heap<T> {
             data.set(tamaño, nuevo);                      //O(1) 
 
         while (i > 0 && prioridad.comparar(data.get(padre(i)), data.get(i)) < 0) {  //log(n) iteraciones, ya que recorre la altura. EL costo es O(log n), ya que lo de adentro es O(1)
-            Handler<T> p = data.set(padre(i), nuevo);                               //O(1)en la posición del padre de nuevo nodo asignamos a nuevo  
-            data.set(i, p);                                                         //O(1)en la antigua posición de nuevo asignamos al padre
+            Handler<T> p = data.set(padre(i), nuevo);                               //O(1) en la posición del padre de nuevo nodo asignamos a nuevo  
+            data.set(i, p);                                                         //O(1) en la antigua posición de nuevo asignamos al padre
             i = padre(i);                                                           //O(1)
         }
 
         tamaño++;                                                                   //O(1)
 
-        return i;                                                                   //O(1)
+        return i;                                                                   //O(1) nos devuelve la posicion donde queda el traslado
     }
 
     public Despachado<T> eliminar(int indice) {                            //O(log n)
@@ -54,29 +54,30 @@ public class Heap<T> {
 
         int i = indice;                                                    //O(1)
 
-        i = siftDown(i, null);                                     //O(log n) 
+        i = siftDown(i, null);                                     //O(log n) obtenemos en i la posicion donde quedo el ultimo elemento luego de desencolar 
 
-        Despachado<T> dataDespachado = new Despachado<T>(despachado, i);   //O(1)
+        Despachado<T> dataDespachado = new Despachado<T>(despachado, i);   //O(1) la metemos en data despachado
 
-        return dataDespachado;                                             //O(1)
+        return dataDespachado;                                             //O(1) y por ultimo la devolvemos 
     }
 
-    public Handler<T> tope() {
+    public Handler<T> tope() {   //O(1)
         return data.get(0);
     }
 
-    public void revisarPosicion(int indice, int[] ordenes) {
-        indice = siftDown(indice, ordenes);                                                         //O(log(C))
-        while (indice > 0 && prioridad.comparar(data.get(padre(indice)), data.get(indice)) < 0) {   //O(log(C))
-            Handler<T> p = data.set(padre(indice), data.get(indice));
-            data.set(indice, p);
-            ordenes[p.handle()] = indice;
-            indice = padre(indice);
-            ordenes[data.get(indice).handle()] = indice;
+    //Se fija si hay que hacer siftDown o siftUp
+    public void revisarPosicion(int indice, int[] ordenes) {                                    
+        indice = siftDown(indice, ordenes);                                                         //O(log(n))
+        while (indice > 0 && prioridad.comparar(data.get(padre(indice)), data.get(indice)) < 0) {   //O(log(n))
+            Handler<T> p = data.set(padre(indice), data.get(indice));                   //O(1)
+            data.set(indice, p);                                                        //O(1)
+            ordenes[p.handle()] = indice;                                               //O(1)
+            indice = padre(indice);                                                     //O(1)
+            ordenes[data.get(indice).handle()] = indice;                                //O(1)
         }
     }
 
-    public ArrayList<Handler<T>> data() {
+    public ArrayList<Handler<T>> data() {   //O(1)
         return data;
     }
 
@@ -87,24 +88,24 @@ public class Heap<T> {
 
             i--;                         
         }
-    }
+    } 
 
     private int siftDown(int i, int[] ordenes) {                   //O(log(n))
-        while (i < tamaño && !hijosMenores(i)) {                   //El peor caso sería que i tenga que convertirse en el último del heap. En ese caso, el while tendría log(n) iteraciones, ya que recorre la altura. Entonces, como lo de adentro es O(1), el costo del while es O(log n)
+        while (i < tamaño && !hijosMenores(i)) {                   //log(n) iteraciones, ya que recorre la altura. Entonces, como lo de adentro es O(1), el costo del while es O(log n)
             Handler<T> swap;                                       //O(1)
             if (hijoDer(i) >= tamaño) {                            //O(1) Si el nodo de la posición i no tiene hijo derecho, entonces intercambiamos ese nodo con su hijo izquierdo
                 swap = data.set(i, data.get(hijoIzq(i)));          //O(1) swap es el valor original en la posición i 
-                if (ordenes != null) {                             //O(1)
-                    ordenes[data.get(i).handle()] = i;             //O(1) Le cambiamos el valor a ordenes en la posición que indica el handle del antiguo hijo izquierdo por la nueva posición (i) de éste.                         
-                    ordenes[swap.handle()] = hijoIzq(i);           //O(1) Le cambiamos el valor a ordenes en la posición que indica el handle del nuevo hijo izquierdo por la nueva posición (hijoIzq(i)) de éste.
+                if (ordenes != null) {                             //O(1) solo se ejecuta durante la inicializacion del heap
+                    ordenes[data.get(i).handle()] = i;             //O(1) actualizamos el valor de ordenes en la posición que indica el handle (en este momento indica la posicion de este traslado en traslados)                         
+                    ordenes[swap.handle()] = hijoIzq(i);           //O(1) actualizamos el valor de ordenes en la posición que indica el handle (en este momento indica la posicion de este traslado en traslados)  
                 }
                 i = hijoIzq(i);                                    //O(1)
             }
             else {
                 Handler<T> hijoMaximo = max(data.get(hijoIzq(i)), data.get(hijoDer(i)));    //O(1)
                 if (ordenes != null)                                                        //O(1)
-                    ordenes[hijoMaximo.handle()] = i;                                       //O(1) Le cambiamos el valor a ordenes en la posición que indica el handle del hijo de mayor prioridad por la nueva posición (i) de éste.
-                swap = data.set(i, hijoMaximo);                                             //intercambiamos el nodo de la posición i con el hijo máximo, swap es el valor original en la posición i
+                    ordenes[hijoMaximo.handle()] = i;                                       //O(1) actualizamos el valor de ordenes en la posición que indica el handle (en este momento indica la posicion de este traslado en traslados)  
+                swap = data.set(i, hijoMaximo);                                             //O(1) intercambiamos el nodo de la posición i con el hijo máximo, swap es el valor original en la posición i
 
                 if (prioridad.comparar(data.get(hijoIzq(i)), data.get(hijoDer(i))) > 0) {   //O(1) vemos cual es el hijo de mayor prioridad, y le cambiamos el valor a ordenes en la posición que indica el handle del nuevo hijo izquierdo o derecho por la nueva posición (hijoIzq(i) o hijoDer(i)) de éste.
                     if (ordenes != null)                                                    //O(1)
@@ -121,76 +122,34 @@ public class Heap<T> {
             data.set(i, swap);                                                              //O(1) en la posición i asignamos el valor swap
         }
 
-        return i;                                                                          //O(1)
+        return i;                                                                          //O(1) devuelve la posicion donde quedo el objeto
     }     
 
-    /* 
-
-    @Override
-    public String toString() {
-        String res = "";
-        int maxFilas = log2Ceil(tamaño);
-        int fila = 0;
-        int tamañoFila = tamaño / 2;
-
-        while (fila < maxFilas) {
-            String filaOut = generarFila(fila, tamañoFila);
-        }
-
-        return res;
-    }
-
-    private String generarFila(int fila, int tamañoFila) {
-        double espacios = tamañoFila - Math.pow(2, fila + 1);
-    }
-
-    private int log2Ceil(int n) {
-        int log = 0;
-        int i = n;
-
-        while (i > 1) {
-            i /= 2;
-            log++;
-        }
-
-        if (n > Math.pow(2, log))
-            return log + 1;
-        else
-            return log;
-    }
-
-    private double potenciaDeDosCeil(int n) {
-        while (n > 0)
-        return Math.pow(2, log2Ceil(n));
-    }
-
-    */
-
-    public int tamaño() {
+    public int tamaño() {    //O(1)
         return tamaño;
     }
 
-    private int hijoIzq(int i) {
+    private int hijoIzq(int i) {   //O(1)
         return 2*i + 1;
     }
 
-    private boolean hijosMenores(int i) {
+    private boolean hijosMenores(int i) {     //O(1)
         return (hijoDer(i) >= tamaño || prioridad.comparar(data.get(i), data.get(hijoDer(i))) >= 0) && 
         (hijoIzq(i) >= tamaño || prioridad.comparar(data.get(i), data.get(hijoIzq(i))) >= 0);
     }
 
-    private Handler<T> max(Handler<T> t, Handler<T> s) {
+    private Handler<T> max(Handler<T> t, Handler<T> s) {   //O(1)
         if (prioridad.comparar(t, s) > 0)
             return t;
         else
             return s;
     }
 
-    private int hijoDer(int i) {
+    private int hijoDer(int i) {   //O(1)
         return 2*i + 2;
     }
 
-    private int padre(int i) {
+    private int padre(int i) {  //O(1)
         return (i-1)/2;
     }
 }
