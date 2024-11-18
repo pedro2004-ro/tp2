@@ -46,7 +46,7 @@ public class BETestsPropios {
 
         BestEffort sis = new BestEffort(cantCiudades, nuevos);
 
-        assertEquals(null, sis.despacharMasAntiguos(5));
+        assertArrayEquals(new int[0], sis.despacharMasAntiguos(5));
 
         assertTrue(0 <= sis.ciudadConMayorSuperavit() && sis.ciudadConMayorSuperavit() < cantCiudades);
     }
@@ -127,4 +127,18 @@ public class BETestsPropios {
 
         sis.despacharMasAntiguos(24);
     }
+
+    @Test
+    void comparadoresTest(){
+        Comparador<Handler<Traslado>> compRedito = new ComparadorPorRedito<Handler<Traslado>>();
+
+        Handler<Traslado> t1 = new Handler<Traslado>(new Traslado(12, 2, 5, 2000, 9),0);
+        Handler<Traslado> t2 = new Handler<Traslado>(new Traslado(11, 5, 4, 333, 4),1);
+
+        Comparador<Handler<Traslado>> compAntiguedad = new ComparadorPorAntiguedad<Handler<Traslado>>();
+
+        assertEquals(compRedito.comparar(t1,t2), 1);
+        assertEquals(compAntiguedad.comparar(t1,t2), -1);
+    }
 }
+
